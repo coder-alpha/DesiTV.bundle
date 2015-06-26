@@ -1,7 +1,11 @@
+################################################################################
+TITLE = L('Title')
+VERSION = '0.02' # Release notation (x.y - where x is major and y is minor)
+GITHUB_REPOSITORY = 'coder-alpha/DesiTV.bundle'
+PREFIX = "/video/desitv"
+################################################################################
 
 NAME     = L('Title')
-PREFIX   = '/video/desitv'
-
 ART      = 'art-default.jpg'
 ICON     = 'icon-default.png'
 
@@ -64,6 +68,10 @@ REALTV = 'Real Tv'
 FIRANGI = 'FIRANGI'
 ZEEMUZIC = 'Zee Muzic'
 
+# Added by Coder-Alpha
+ANDTV = '& Tv'
+EPIC = 'EPIC'
+
 ####################################################################################################
 
 def GetSupportedChannels():
@@ -123,7 +131,9 @@ def GetSupportedChannels():
             ZEENEXT.lower(),
             REALTV.lower(),
             FIRANGI.lower(),
-            ZEEMUZIC.lower()
+            ZEEMUZIC.lower(),
+			ANDTV.lower(),
+            EPIC.lower()
   ]
 
 ####################################################################################################
@@ -233,6 +243,10 @@ def GetThumb(channel):
     icon = R('icon-firangi.png')
   elif channel == ZEEMUZIC.lower():
     icon = R('icon-zeemuzic.png')
+  elif channel == ANDTV.lower():
+    icon = R('icon-&TV.png')
+  elif channel == EPIC.lower():
+    icon = R('icon-epic.png')
 
   return icon
   

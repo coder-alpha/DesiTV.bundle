@@ -8,7 +8,7 @@
             <string>2</string>
         <key>PlexClientPlatforms</key>
             <string>*</string>
-			
+	
         <!-- DEBUG OPTIONAL KEYS -->
         <key>PlexPluginDebug</key>
         <array>
