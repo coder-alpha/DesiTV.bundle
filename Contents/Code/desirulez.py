@@ -250,6 +250,7 @@ def PlayerLinksMenu(url, title, type):
 	# Add the item to the collection
 	if type == "TV":
 		oc.add(DirectoryObject(key=Callback(EpisodeLinksMenu, url=url, title=title, type=L('LetWatchUS-HD')), title=L('LetWatchUS-HD'), thumb=R('icon-letwatchus.png')))
+		oc.add(DirectoryObject(key=Callback(EpisodeLinksMenu, url=url, title=title, type=L('LetWatchUS-DVD')), title=L('LetWatchUS-DVD'), thumb=R('icon-letwatchus.png')))
 		oc.add(DirectoryObject(key=Callback(EpisodeLinksMenu, url=url, title=title, type=L('DailymotionHD')), title=L('DailymotionHD'), thumb=R('icon-dailymotion.png')))
 		oc.add(DirectoryObject(key=Callback(EpisodeLinksMenu, url=url, title=title, type=L('DailymotionDVD')), title=L('DailymotionDVD'), thumb=R('icon-dailymotion.png')))
 		oc.add(DirectoryObject(key=Callback(EpisodeLinksMenu, url=url, title=title, type=L('DailymotionSD')), title=L('DailymotionSD'), thumb=R('icon-dailymotion.png')))
@@ -331,6 +332,8 @@ def EpisodeLinksMenu(url, title, type):
 	
 	if type == "LetWatchUS-HD":
 		items = GetLetwatchusHD(html)
+	elif type == "LetWatchUS-DVD":
+		items = GetLetwatchusDVD(html)
 	elif type == "Dailymotion HD":
 		items = GetDailymotionHD(html)
 	elif type == "Dailymotion DVD":
@@ -492,7 +495,14 @@ def GetLetwatchusHD(html):
 	if len(items) == 0:
 		items = html.xpath("//div[@class='content hasad']//b[contains(font[@color='Red']//text(), 'Letwatch 720p')]//following-sibling::a")
 	return items
-	
+
+####################################################################################################
+
+def GetLetwatchusDVD(html):
+	items = html.xpath("//div[@class='content']//b[contains(font/text(),'Letwatch DVD')]/following-sibling::a[count(. | //b[count(//b[contains(font/text(),'Letwatch DVD')]/preceding-sibling::b)+2]/preceding-sibling::a) = count(//b[count(//b[contains(font/text(),'Letwatch DVD')]/preceding-sibling::b)+2]/preceding-sibling::a)]")
+	if len(items) == 0:
+		items = html.xpath("//div[@class='content hasad']//b[contains(font[@color='Red']//text(), 'Letwatch DVD')]//following-sibling::a")
+	return items
 ####################################################################################################
 
 def GetDailymotion(html):
