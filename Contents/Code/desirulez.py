@@ -6,7 +6,7 @@ import time
 import datetime
 
 SITETITLE = L('DesiRulezTitle')
-SITEURL = 'http://www.desirulez.net/'
+SITEURL = 'http://www.desirulez.me/'
 SITETHUMB = 'icon-desirulez.png'
 BOLLYWOODMOVIES = 'http://www.desirulez.net/forums/260-Bollywood-Movies?s=ff8112e19bee5e07f0e95696812ae217'
 
@@ -249,6 +249,7 @@ def PlayerLinksMenu(url, title, type):
 	
 	# Add the item to the collection
 	if type == "TV":
+		oc.add(DirectoryObject(key=Callback(EpisodeLinksMenu, url=url, title=title, type=L('LetWatchUS-HD')), title=L('LetWatchUS-HD'), thumb=R('icon-letwatchus.png')))
 		oc.add(DirectoryObject(key=Callback(EpisodeLinksMenu, url=url, title=title, type=L('DailymotionHD')), title=L('DailymotionHD'), thumb=R('icon-dailymotion.png')))
 		oc.add(DirectoryObject(key=Callback(EpisodeLinksMenu, url=url, title=title, type=L('DailymotionDVD')), title=L('DailymotionDVD'), thumb=R('icon-dailymotion.png')))
 		oc.add(DirectoryObject(key=Callback(EpisodeLinksMenu, url=url, title=title, type=L('DailymotionSD')), title=L('DailymotionSD'), thumb=R('icon-dailymotion.png')))
@@ -328,7 +329,9 @@ def EpisodeLinksMenu(url, title, type):
 	# Summary
 	summary = GetSummary(html)
 	
-	if type == "Dailymotion HD":
+	if type == "LetWatchUS-HD":
+		items = GetLetwatchusHD(html)
+	elif type == "Dailymotion HD":
 		items = GetDailymotionHD(html)
 	elif type == "Dailymotion DVD":
 		items = GetDailymotionDVD(html)
@@ -341,6 +344,8 @@ def EpisodeLinksMenu(url, title, type):
 	else:
 		items = None
 
+	links = []
+	count=0
 	for item in items:
 		try:
 			# Video site
@@ -358,17 +363,18 @@ def EpisodeLinksMenu(url, title, type):
 			Log("Video Site: " + videosite + " Link: " + link + " Thumb: " + thumb)
 		except:
 			continue
-		
+			
 		try:
 			originally_available_at = Datetime.ParseDate(date).date()
 		except:
 			originally_available_at = ''
 
 		# Add the found item to the collection
-		if link.find('dailymotion') != -1:
+		if link.find('dailymotion') != -1 or link.find('vidshare') != -1:
+			links.append(URLService.NormalizeURL(link))
 			#Log ('Dailymotion Link: ' + link)
 			oc.add(VideoClipObject(
-				url = link, 
+				url = link,
 				title = videosite,
 				thumb = Resource.ContentsOfURLWithFallback(thumb, fallback=R(ICON)),				
 				summary = summary,
@@ -380,7 +386,44 @@ def EpisodeLinksMenu(url, title, type):
 				thumb = Resource.ContentsOfURLWithFallback(thumb, fallback=R(ICON)),
 				summary = summary,
 				originally_available_at = originally_available_at))
-
+			
+	if len(links) > 10:
+		JSON_URL = 'http://www.dailymotion.com/json/video/%s?fields=video_id,title,thumbnail_large_url,url,stream_h264_sd_url,stream_h264_url,stream_h264_hd_url,rating,duration,description'
+		video_id1 = links[0].rsplit('/',1)[1]
+		json_url1 = JSON_URL % video_id1
+		video_id2 = links[1].rsplit('/',1)[1]
+		json_url2 = JSON_URL % video_id2
+	
+		vco = VideoClipObject(
+			key = title,
+			rating_key = title,
+			title = 'Play All - ' + title,
+			thumb = Resource.ContentsOfURLWithFallback(thumb, fallback=R(ICON)),
+			summary = summary,
+			originally_available_at = originally_available_at)
+		mo = MediaObject(
+			parts = [PartObject(key=Callback(PlayVideo, url=json_url1, post_url=json_url1, fmt='hd'))],
+			container = Container.MP4,
+			bitrate = '1500',
+			video_resolution = '720',
+			video_codec = VideoCodec.H264,
+			audio_codec = AudioCodec.AAC,
+			audio_channels = 2,
+			optimized_for_streaming = True)
+		mo1 = MediaObject(
+			parts = [PartObject(key=Callback(PlayVideo, url=json_url2, post_url=json_url2, fmt='hd'))],
+			container = Container.MP4,
+			bitrate = '1500',
+			video_resolution = '720',
+			video_codec = VideoCodec.H264,
+			audio_codec = AudioCodec.AAC,
+			audio_channels = 2,
+			optimized_for_streaming = True)
+		
+		vco.add(mo1)
+		vco.add(mo)
+		oc.add(vco)
+	
 	# If there are no channels, warn the user
 	if len(oc) == 0:
 		return ObjectContainer(header=title, message=L('SourceWarning'))
@@ -412,6 +455,8 @@ def GetTvURLSource(url, referer, date=''):
 
 	if string.find('dailymotion') != -1:
 		url = html.xpath("//iframe[contains(@src,'dailymotion')]/@src")[0]
+	elif string.find('vidshare') != -1:
+		url = html.xpath("//iframe[contains(@src,'vidshare')]/@src")[0]
 	elif string.find('playwire') != -1:
 		#Log("pID: " + str(len(html.xpath("//script/@data-publisher-id"))) + " vID: " + str(len(html.xpath("//script/@data-video-id"))))
 		if len(html.xpath("//script/@data-publisher-id")) != 0 and len(html.xpath("//script/@data-video-id")) != 0:
@@ -442,6 +487,14 @@ def GetTvURLSource(url, referer, date=''):
 
 ####################################################################################################
 
+def GetLetwatchusHD(html):
+	items = html.xpath("//div[@class='content']//b[contains(font/text(),'Letwatch 720p')]/following-sibling::a[count(. | //b[count(//b[contains(font/text(),'Letwatch 720p')]/preceding-sibling::b)+2]/preceding-sibling::a) = count(//b[count(//b[contains(font/text(),'Letwatch 720p')]/preceding-sibling::b)+2]/preceding-sibling::a)]")
+	if len(items) == 0:
+		items = html.xpath("//div[@class='content hasad']//b[contains(font[@color='Red']//text(), 'Letwatch 720p')]//following-sibling::a")
+	return items
+	
+####################################################################################################
+
 def GetDailymotion(html):
 	items = html.xpath("//div[@class='content']//b[contains(font/text(),'DailyMotion')]/following-sibling::a[count(. | //b[count(//b[contains(font/text(),'DailyMotion')]/preceding-sibling::b)+2]/preceding-sibling::a) = count(//b[count(//b[contains(font/text(),'DailyMotion')]/preceding-sibling::b)+2]/preceding-sibling::a)]")
 	return items
@@ -457,7 +510,9 @@ def GetDailymotionHD(html):
 ####################################################################################################
 
 def GetDailymotionDVD(html):
-	items = html.xpath("//div[@class='content']//b[contains(font/text(),'Dailymotion DVD')]/following-sibling::a[count(. | //b[count(//b[contains(font/text(),'Dailymotion DVD')]/preceding-sibling::b)+2]/preceding-sibling::a) = count(//b[count(//b[contains(font/text(),'Dailymotion DVD')]/preceding-sibling::b)+2]/preceding-sibling::a)]")
+	items = html.xpath("//div[@class='content hasad']//b[contains(font[@color='Red']//text(), 'Dailymotion DVD')]//following-sibling::a")
+	if len(items) == 0:
+		items = html.xpath("//div[@class='content']//b[contains(font/text(),'Dailymotion DVD')]/following-sibling::a[count(. | //b[count(//b[contains(font/text(),'Dailymotion DVD')]/preceding-sibling::b)+2]/preceding-sibling::a) = count(//b[count(//b[contains(font/text(),'Dailymotion DVD')]/preceding-sibling::b)+2]/preceding-sibling::a)]")
 	return items
 	
 ####################################################################################################
@@ -549,7 +604,6 @@ def GetThumb(html):
 	return thumb
 
 ####################################################################################################
-
 @route(PREFIX + '/desirulez/createvideoobject')
 def CreateVideoObject(url, title, thumb, summary='', originally_available_at='', include_container=False):
 	try:
@@ -596,3 +650,37 @@ def CreateVideoObject(url, title, thumb, summary='', originally_available_at='',
 		return video_object
 
 ####################################################################################################
+
+@indirect
+def PlayVideo(url=None, fmt=None, **kwargs):
+
+	if not url or not fmt:
+		raise Ex.MediaNotAvailable
+
+	try:
+		data = HTTP.Request(url).content
+		if not data[0:1] == '{':
+			raise Ex.MediaNotAvailable
+	except:
+		raise Ex.MediaNotAvailable
+
+	video = JSON.ObjectFromString(data)
+	video_url = None
+
+	if fmt == 'hd':
+		if 'stream_h264_hd_url' in video:
+			video_url = video['stream_h264_hd_url']
+		elif 'stream_h264_url' in video:
+			video_url = video['stream_h264_url']
+		elif 'stream_h264_sd_url' in video:
+			video_url = video['stream_h264_sd_url']
+
+	if fmt == 'sd' or video_url is None:
+		if 'stream_h264_url' in video:
+			video_url = video['stream_h264_url']
+		elif 'stream_h264_sd_url' in video:
+			video_url = video['stream_h264_sd_url']
+		else:
+			raise Ex.MediaNotAvailable
+
+	return IndirectResponse(VideoClipObject, key=video_url)

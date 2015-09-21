@@ -1,6 +1,6 @@
 ################################################################################
 TITLE = L('Title')
-VERSION = '0.03' # Release notation (x.y - where x is major and y is minor)
+VERSION = '0.04' # Release notation (x.y - where x is major and y is minor)
 GITHUB_REPOSITORY = 'coder-alpha/DesiTV.bundle'
 PREFIX = "/video/desitv"
 ################################################################################
