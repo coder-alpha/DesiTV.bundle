@@ -1,6 +1,6 @@
 ################################################################################
 TITLE = L('Title')
-VERSION = '0.05' # Release notation (x.y - where x is major and y is minor)
+VERSION = '0.06' # Release notation (x.y - where x is major and y is minor)
 GITHUB_REPOSITORY = 'coder-alpha/DesiTV.bundle'
 PREFIX = "/video/desitv"
 ################################################################################
@@ -72,6 +72,12 @@ ZEEMUZIC = 'Zee Muzic'
 ANDTV = '& Tv'
 EPIC = 'EPIC'
 
+# DesiBoxTv
+ANDTV2 = 'And TV'
+SONYPAL2 = 'Pal'
+MTVIN2 = 'MTV'
+ZINDAGITV2 = 'Zindagi'
+
 ####################################################################################################
 
 def GetSupportedChannels():
@@ -133,6 +139,10 @@ def GetSupportedChannels():
             FIRANGI.lower(),
             ZEEMUZIC.lower(),
 			ANDTV.lower(),
+			ANDTV2.lower(),
+			SONYPAL2.lower(),
+			MTVIN2.lower(),
+			ZINDAGITV2.lower(),
             EPIC.lower()
   ]
 
@@ -159,7 +169,7 @@ def GetThumb(channel):
     icon = R('icon-sabtv.png')
   elif channel == STARPRAVAH.lower():
     icon = R('icon-starpravah.png')
-  elif channel == MTV.lower() or channel == MTVIN.lower():
+  elif channel == MTV.lower() or channel == MTVIN.lower() or channel == MTVIN2.lower():
     icon = R('icon-mtv.png')
   elif channel == CHANNELV.lower() or channel == CHANNELVV.lower():
     icon = R('icon-channelv.png')
@@ -175,11 +185,11 @@ def GetThumb(channel):
     icon = R('icon-9xinxmedia.png')
   elif channel == NDTV.lower():
     icon = R('icon-ndtv.png')
-  elif channel == SONYPAL.lower():
+  elif channel == SONYPAL.lower() or channel == SONYPAL2.lower():
     icon = R('icon-sonypal.png')
   elif channel == DDNATIONAL.lower():
     icon = R('icon-ddnational.png')
-  elif channel == ZINDAGITV.lower():
+  elif channel == ZINDAGITV.lower() or channel == ZINDAGITV2.lower():
     icon = R('icon-zindagitv.png')
   elif channel == BIGMAGIC.lower():
     icon = R('icon-bigmagic.png')
@@ -243,7 +253,7 @@ def GetThumb(channel):
     icon = R('icon-firangi.png')
   elif channel == ZEEMUZIC.lower():
     icon = R('icon-zeemuzic.png')
-  elif channel == ANDTV.lower():
+  elif channel == ANDTV.lower() or channel == ANDTV2.lower():
     icon = R('icon-&TV.png')
   elif channel == EPIC.lower():
     icon = R('icon-epic.png')

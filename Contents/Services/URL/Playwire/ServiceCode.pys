@@ -1,0 +1,91 @@
+import string, re
+
+HTTP_HEADERS = {
+	'Accept	text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+	'Accept-Encoding:	gzip, deflate',
+	'Accept-Language:	en-US,en;q=0.5',
+	'Connection:		keep-alive',
+	'Referer:		http://www.playwire.com',
+	'User-Agent:		Mozilla/5.0 (Windows NT 6.1; WOW64; rv:33.0) Gecko/20100101 Firefox/33.0'
+}
+
+########################################################################################
+def NormalizeURL(url):
+
+	return url
+
+####################################################################################################
+def MetadataObjectForURL(url):
+	
+	thumb = ''
+	
+	try:
+		json = JSON.ObjectFromURL(url)
+		thumb = json['content']['poster']
+		
+		#f4m_url = json['content']['media']['f4m']
+		#xml = XML.ElementFromURL(f4m_url)
+		#burl = xml.xpath('//a:baseURL/text()', namespaces={'a': 'http://ns.adobe.com/f4m/1.0'})[0]
+		#vurl = burl + '/' + xml.xpath('//a:media/@url', namespaces={'a': 'http://ns.adobe.com/f4m/1.0'})[0]
+		
+	except:
+		thumb = url
+		
+	title = 'Playwire Redirect Page'
+	summary = 'Summary info Page'
+	
+	return VideoClipObject(
+		title = title,
+		summary = summary +'\n\n',
+		thumb = Resource.ContentsOfURLWithFallback(url = thumb, fallback='icon-cover.png')
+	)
+	
+####################################################################################################
+def MediaObjectsForURL(url):
+
+	#Log("url-----------" + url)
+	
+	try:
+		json = JSON.ObjectFromURL(url)
+
+		f4m_url = json['content']['media']['f4m']
+		xml = XML.ElementFromURL(f4m_url)
+		
+		burl = xml.xpath('//a:baseURL/text()', namespaces={'a': 'http://ns.adobe.com/f4m/1.0'})[0]
+		vurls = xml.xpath('//a:media/@url', namespaces={'a': 'http://ns.adobe.com/f4m/1.0'})
+		res = xml.xpath('//a:media/@height', namespaces={'a': 'http://ns.adobe.com/f4m/1.0'})
+		brate = xml.xpath('//a:media/@bitrate', namespaces={'a': 'http://ns.adobe.com/f4m/1.0'})[0]
+		dur = xml.xpath('//a:duration/text()', namespaces={'a': 'http://ns.adobe.com/f4m/1.0'})[0]
+	except:
+		pass
+		
+	return [
+		MediaObject(
+			container = Container.MP4,
+			video_codec = VideoCodec.H264,
+			video_resolution = str(res[0]),
+			audio_codec = AudioCodec.AAC,
+			bitrate = int(brate),
+			duration = int(int(dur) * 1000),
+			audio_channels = 2,
+			optimized_for_streaming = True,
+			parts = [PartObject(key=Callback(PlayVideo, url=burl + '/' + vurls[0]))]
+		),
+		MediaObject(
+			container = Container.MP4,
+			video_codec = VideoCodec.H264,
+			video_resolution = str(res[1]),
+			audio_codec = AudioCodec.AAC,
+			bitrate = int(brate),
+			duration = int(int(dur) * 1000),
+			audio_channels = 2,
+			optimized_for_streaming = True,
+			parts = [PartObject(key=Callback(PlayVideo, url=burl + '/' + vurls[1]))]
+		)
+	]
+
+####################################################################################################
+@indirect
+def PlayVideo(url):
+	
+	return IndirectResponse(VideoClipObject, key=url)

@@ -249,8 +249,7 @@ def PlayerLinksMenu(url, title, type):
 	
 	# Add the item to the collection
 	if type == "TV":
-		oc.add(DirectoryObject(key=Callback(EpisodeLinksMenu, url=url, title=title, type=L('LetWatchUS-HD')), title=L('LetWatchUS-HD'), thumb=R('icon-letwatchus.png')))
-		oc.add(DirectoryObject(key=Callback(EpisodeLinksMenu, url=url, title=title, type=L('LetWatchUS-DVD')), title=L('LetWatchUS-DVD'), thumb=R('icon-letwatchus.png')))
+		oc.add(DirectoryObject(key=Callback(EpisodeLinksMenu, url=url, title=title, type='LetWatchUS'), title='LetWatchUS', thumb=R('icon-letwatchus.png')))
 		oc.add(DirectoryObject(key=Callback(EpisodeLinksMenu, url=url, title=title, type=L('DailymotionHD')), title=L('DailymotionHD'), thumb=R('icon-dailymotion.png')))
 		oc.add(DirectoryObject(key=Callback(EpisodeLinksMenu, url=url, title=title, type=L('DailymotionDVD')), title=L('DailymotionDVD'), thumb=R('icon-dailymotion.png')))
 		oc.add(DirectoryObject(key=Callback(EpisodeLinksMenu, url=url, title=title, type=L('DailymotionSD')), title=L('DailymotionSD'), thumb=R('icon-dailymotion.png')))
@@ -330,10 +329,8 @@ def EpisodeLinksMenu(url, title, type):
 	# Summary
 	summary = GetSummary(html)
 	
-	if type == "LetWatchUS-HD":
+	if type == "LetWatchUS":
 		items = GetLetwatchusHD(html)
-	elif type == "LetWatchUS-DVD":
-		items = GetLetwatchusDVD(html)
 	elif type == "Dailymotion HD":
 		items = GetDailymotionHD(html)
 	elif type == "Dailymotion DVD":
@@ -348,8 +345,9 @@ def EpisodeLinksMenu(url, title, type):
 		items = None
 
 	links = []
-	count=0
+
 	for item in items:
+		
 		try:
 			# Video site
 			videosite = item.xpath("./text()")[0]
@@ -359,6 +357,8 @@ def EpisodeLinksMenu(url, title, type):
 			if link.startswith("http") == False:
 				link = link.lstrip('htp:/')
 				link = 'http://' + link
+			if len(links) > 1 and link.find('Part 1') != -1:
+				break
 			# Show date
 			date = GetShowDate(videosite)
 			# Get video source url and thumb
@@ -373,7 +373,16 @@ def EpisodeLinksMenu(url, title, type):
 			originally_available_at = ''
 
 		# Add the found item to the collection
-		if link.find('dailymotion') != -1 or link.find('vidshare') != -1:
+		if link.find('vidshare') != -1:
+			links.append(URLService.NormalizeURL(link))
+			#Log ('LetwatchUS Link: ' + link)
+			oc.add(VideoClipObject(
+				url = link,
+				title = videosite,
+				thumb = Resource.ContentsOfURLWithFallback(thumb, fallback=R(ICON)),				
+				summary = summary,
+				originally_available_at = originally_available_at))
+		elif link.find('dailymotion') != -1:
 			links.append(URLService.NormalizeURL(link))
 			#Log ('Dailymotion Link: ' + link)
 			oc.add(VideoClipObject(
@@ -491,9 +500,9 @@ def GetTvURLSource(url, referer, date=''):
 ####################################################################################################
 
 def GetLetwatchusHD(html):
-	items = html.xpath("//div[@class='content']//b[contains(font/text(),'Letwatch 720p')]/following-sibling::a[count(. | //b[count(//b[contains(font/text(),'Letwatch 720p')]/preceding-sibling::b)+2]/preceding-sibling::a) = count(//b[count(//b[contains(font/text(),'Letwatch 720p')]/preceding-sibling::b)+2]/preceding-sibling::a)]")
+	items = html.xpath("//div[@class='content']//b[contains(font/text(),'Letwatch')]/following-sibling::a[count(. | //b[count(//b[contains(font/text(),'Letwatch')]/preceding-sibling::b)+2]/preceding-sibling::a) = count(//b[count(//b[contains(font/text(),'Letwatch')]/preceding-sibling::b)+2]/preceding-sibling::a)]")
 	if len(items) == 0:
-		items = html.xpath("//div[@class='content hasad']//b[contains(font[@color='Red']//text(), 'Letwatch 720p')]//following-sibling::a")
+		items = html.xpath("//div[@class='content hasad']//b[contains(font[@color='Red']//text(), 'Letwatch')]//following-sibling::a")
 	return items
 
 ####################################################################################################

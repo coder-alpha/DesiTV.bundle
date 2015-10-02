@@ -11,6 +11,24 @@
 		<string>http://vidshare.us/.+</string>
       </array>
     </dict>
+	<key>Playwire</key>
+    <dict>
+      <key>URLPatterns</key>
+      <array>
+        <string>http://config.playwire.com</string>
+		<string>http://config.playwire.com/.+</string>
+      </array>
+    </dict>
+	<key>Cloudy</key>
+    <dict>
+      <key>URLPatterns</key>
+      <array>
+        <string>http://www.cloudy.ec</string>
+		<string>http://www.cloudy.ec/.+</string>
+		<string>https://www.cloudy.ec</string>
+		<string>https://www.cloudy.ec/.+</string>
+      </array>
+    </dict>
   </dict>
 </dict>
 </plist>

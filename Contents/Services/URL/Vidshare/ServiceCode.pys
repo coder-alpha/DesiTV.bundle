@@ -22,29 +22,10 @@ def MetadataObjectForURL(url):
 		keys = page_data.xpath("//script//text()")
 		img = page_data.xpath("//img/@src")[0]
 		thumb = img
-		img = img.replace('//','|')
-		host = img.split('/')[0]
-		host = host.replace('|','//')
-		stuff = keys[len(keys)-2]
-		mykey = 'not found'
-		key = re.findall ( 'H1D\|(.*?)\|SD', stuff, re.MULTILINE)
-		if len(key) > 0:
-			mykey = key[0]
-		else:
-			key = re.findall ( 'SD\|(.*?)\|sources', stuff, re.MULTILINE)
-			if len(key) > 0:
-				mykey = key[0]
-			else:
-				mykey = re.findall ( 'flv\|(.*?)\|sources', stuff, re.MULTILINE)[0]
 		
-		if mykey.find('|') != -1:
-			mykey = mykey.split('|');
-			mykey = mykey[len(mykey)-1]
-		
-		url0 = host + '/' + mykey + '/' + 'v.flv'
 		# http://103.43.94.69/l7z7btxjdqnhgn4vfj2bga6cqdroexc376gj3a6mmo4emsbchtortpisujva/v.flv
 	except:
-		url0 = url
+		thumb = url
 		
 	title = 'VidShare Redirect Page'
 	summary = 'Summary info Page'
