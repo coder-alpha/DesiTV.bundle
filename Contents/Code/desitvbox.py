@@ -21,7 +21,7 @@ def ChannelsMenu(url):
 
 	html = HTML.ElementFromURL(url)
 
-	for item in html.xpath("//div[@id='categories']//a"):
+	for item in html.xpath("//nav[@class='site_navigation']//a"):
 		try:
 			# Channel title
 			channel = item.xpath("text()")[0]
@@ -55,7 +55,7 @@ def ShowsMenu(url, title):
 
 	html = HTML.ElementFromURL(url)
 	
-	for item in html.xpath("//li[@class='categories']//li//a"):
+	for item in html.xpath("//div[@class='entry_content']//li//a"):
 		try:
 			# Show title
 			show = item.xpath("text()")[0]
@@ -86,7 +86,7 @@ def EpisodesMenu(url, title):
 
 	html = HTML.ElementFromURL(pageurl)
 	
-	for item in html.xpath("//div[@id='left-inside']//h2[@class='titles']//a"):
+	for item in html.xpath("//div[@class='col main-content col_9_of_12']//div[@class='item_content']//h4//a"):
 		try:
 			# Episode title
 			episode = unicode(str(item.xpath("text()")[0].strip()))
@@ -106,7 +106,7 @@ def EpisodesMenu(url, title):
 	# Find the total number of pages
 	pages = ' '
 	try:
-		pages = html.xpath("//div[@id='left-inside']//p[@class='pagination']//a//@href")[0]
+		pages = html.xpath("//div[@class='col main-content col_9_of_12']//ul[@class='page-numbers']//a[@class='next page-numbers']//@href")[0]
 	except:
 		pass
 			
@@ -165,7 +165,7 @@ def EpisodeLinksMenu(url, title, type):
 		try:
 			# Video site
 			videosite = item.xpath("./text()")[0]
-			Log("Video Site: " + videosite)
+			#Log("Video Site: " + videosite)
 			# Video link
 			link = item.xpath("./@href")[0]
 			if link.startswith("http") == False:
@@ -177,7 +177,14 @@ def EpisodeLinksMenu(url, title, type):
 			date = GetShowDate(videosite)
 			# Get video source url and thumb
 			link, thumb = GetTvURLSource(link,url,date)
-			Log("Video Site: " + videosite + " Link: " + link + " Thumb: " + thumb)
+			
+			if link.find('vidshare') != -1 or link.find('dailymotion') != -1 or link.find('playwire') != -1 or link.find('cloudy') != -1:
+				pass
+			else:
+				link, thumb = GetTvURLSource(link,url,date)
+				link = 'http:' + link
+				
+			#Log("Video Site: " + videosite + " Link: " + link + " Thumb: " + thumb)
 		except:
 			continue
 			
@@ -185,6 +192,7 @@ def EpisodeLinksMenu(url, title, type):
 			originally_available_at = Datetime.ParseDate(date).date()
 		except:
 			originally_available_at = ''
+			
 
 		# Add the found item to the collection
 		if link.find('vidshare') != -1 or link.find('dailymotion') != -1 or link.find('playwire') != -1 or link.find('cloudy') != -1:
@@ -224,6 +232,8 @@ def GetTvURLSource(url, referer, date=''):
 		url = html.xpath("//iframe[contains(@src,'cloudy')]/@src")[0]
 	elif string.find('playwire') != -1:
 		url = html.xpath("//script/@data-config")[0]
+	else:
+		url = html.xpath("//iframe//@src")[0]
 
 	thumb = GetThumb(html)
 
@@ -232,9 +242,9 @@ def GetTvURLSource(url, referer, date=''):
 ####################################################################################################
 
 def GetParts(html, keyword):
-	items = html.xpath("//div[@id='left-inside']//p[contains(b//text(),'"+keyword+"')]//following-sibling::p[1]//a")
+	items = html.xpath("//div[@class='col main-content col_9_of_12']//p[contains(b//text(),'"+keyword+"')]//following-sibling::p[1]//a")
 	if len(items) == 0:
-		items = html.xpath("//div[@id='left-inside']//p[contains(span//text(),'"+keyword+"')]//following-sibling::p[1]//a")
+		items = html.xpath("//div[@class='col main-content col_9_of_12']//p[contains(span//text(),'"+keyword+"')]//following-sibling::p[1]//a")
 	return items
 
 ####################################################################################################
@@ -242,18 +252,18 @@ def GetParts(html, keyword):
 def GetShowDate(title):
 	# find the date in the show title
 	match = re.search(r'\d{1,2}[thsrdn]+\s\w+\s?\d{4}', title)
-	Log ('date match: ' + match.group())
+	#Log ('date match: ' + match.group())
 	# remove the prefix from date
 	match = re.sub(r'(st|nd|rd|th)', "", match.group(), 1)
-	Log ('remove prefix from match: ' + match)
+	#Log ('remove prefix from match: ' + match)
 	# add space between month and year
 	match = re.sub(r'(\d{1,2}\s\w+)(\d{4})', r'\1 \2', match)
-	Log ('add space to month and year match: ' + match)
+	#Log ('add space to month and year match: ' + match)
 	# strip date to struct
 	date = time.strptime(match, '%d %B %Y')
 	# convert date
 	date = time.strftime('%Y%m%d', date)
-	Log ('Final Date: ' + date)
+	#Log ('Final Date: ' + date)
 	return date
 
 ####################################################################################################

@@ -384,7 +384,7 @@ def EpisodeLinksMenu(url, title, type):
 				originally_available_at = originally_available_at))
 		elif link.find('dailymotion') != -1:
 			links.append(URLService.NormalizeURL(link))
-			#Log ('Dailymotion Link: ' + link)
+			Log ('Dailymotion Link: ' + link)
 			oc.add(VideoClipObject(
 				url = link,
 				title = videosite,

@@ -1,0 +1,84 @@
+import demjson
+
+HTTP_HEADERS = {
+	'Accept	text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+	'Accept-Encoding:	gzip, deflate',
+	'Accept-Language:	en-US,en;q=0.5',
+	'Connection:		keep-alive',
+	'Referer:		http://playu.me',
+	'User-Agent:		Mozilla/5.0 (Windows NT 6.1; WOW64; rv:33.0) Gecko/20100101 Firefox/33.0'
+}
+
+########################################################################################
+def NormalizeURL(url):
+
+	return url
+
+####################################################################################################
+def MetadataObjectForURL(url):
+	
+	try:
+		page_data = HTML.ElementFromURL(url)
+		jsblock = page_data.xpath("//script[contains(text(),'jwplayer(\"vplayer\").setup')]//text()")[0]
+		jsonValue = None
+		jsonValue = ((jsblock.split(');',1)[0]).strip()).lstrip("jwplayer(\"vplayer\").setup(")
+		Log("JSON Value = "+jsonValue)
+		if (jsonValue is None):
+			raise
+ 		value = demjson.decode(jsonValue)
+ 		thumb = value['image']		
+	except:
+		thumb = url
+		
+	title = 'PlayU Redirect Page'
+	summary = 'Summary info Page'
+	
+	return VideoClipObject(
+		title = title,
+		summary = summary + '\n\n',
+		thumb = Resource.ContentsOfURLWithFallback(url = thumb, fallback='icon-cover.png')
+	)
+	
+####################################################################################################
+def MediaObjectsForURL(url):
+
+	Log("url-----------" + url)
+	try:
+		page_data = HTML.ElementFromURL(url)
+		jsblock = page_data.xpath("//script[contains(text(),'jwplayer(\"vplayer\").setup')]//text()")[0]
+		jsonValue = None
+		jsonValue = ((jsblock.split(');',1)[0]).strip()).lstrip("jwplayer(\"vplayer\").setup(")
+		Log("JSON Value = "+jsonValue)
+		if (jsonValue is None):
+			raise
+ 		value = demjson.decode(jsonValue)
+ 		#Log("sources = "+str(value['sources']))
+ 		for source in value['sources']:
+ 			if source['file'].endswith('.mp4'):
+ 				url0 = source['file']
+ 		if('duration' in value.keys()):
+ 			dur = value['duration']
+ 		else:
+ 			dur = '0'
+	except:
+		Log("In Exception")
+		url0 = url
+	Log("Video URL = "+url0)
+	return [
+		MediaObject(
+			container = Container.MP4,
+			video_codec = VideoCodec.H264,
+			video_resolution = '720',
+			audio_codec = AudioCodec.AAC,
+			duration = int(int(dur) * 1000),
+			audio_channels = 2,
+			optimized_for_streaming = True,
+			parts = [PartObject(key=Callback(PlayVideo, url=url0))]
+		)
+	]
+
+####################################################################################################
+@indirect
+def PlayVideo(url):
+
+	return IndirectResponse(VideoClipObject, key=url)

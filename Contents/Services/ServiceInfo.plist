@@ -29,6 +29,22 @@
 		<string>https://www.cloudy.ec/.+</string>
       </array>
     </dict>
+	<key>PlayU</key>
+    <dict>
+      <key>URLPatterns</key>
+      <array>
+        <string>http://playu.net</string>
+	      <string>http://playu.net/.+</string>
+        <string>http://playu.me</string>
+        <string>http://playu.me/.+</string>
+        <string>http://dramatime.me</string>
+        <string>http://dramatime.me/.+</string>
+        <string>http://dl1.playu.me</string>
+        <string>http://dl1.playu.me/.+</string>
+        <string>http://dl1.playu.net</string>
+        <string>http://dl1.playu.net/.+</string>
+      </array>
+    </dict>
   </dict>
 </dict>
 </plist>
