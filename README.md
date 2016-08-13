@@ -3,6 +3,7 @@ DesiTV.bundle
 
 Plex Media Server plug-in designed for Desi Entertainment
 
+[Plex Support thread] (https://forums.plex.tv/discussion/107492/req-indian-tv-shows/p1)
 
 System Requirements
 ===================
@@ -38,11 +39,10 @@ Known Issues
 ==============
 
 - Incorrectly marked videos will not play.
-- Currently only Dailymotion is supported.
-- Some movies will not play, currently depending on where hosted.
+- Currently only Dailymotion & Flash/Playwire is supported well.
 
 Acknowledgements
 ==============
 
 - Credits to [b-slick] (https://forums.plex.tv/index.php/topic/107492-req-indian-tv-shows/): for developing the original code
-
+- Credits to [mohit310] (https://github.com/mohit310/DesiTV.bundle) and [hussamnasir] (https://github.com/hussamnasir/DesiTV.bundle) for contributions. Check out their forks as well.
