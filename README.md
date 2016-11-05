@@ -1,4 +1,5 @@
-DesiTV.bundle
+DesiTV.bundle 
+<b>(Discontinued - Please use DesiTelly channel - https://github.com/coder-alpha/DesiTelly.bundle)</b>
 ===================
 
 Plex Media Server plug-in designed for Desi Entertainment
